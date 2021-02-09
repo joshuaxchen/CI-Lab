@@ -111,6 +111,8 @@ static node_t *build_leaf(void)
             leaf->val.fval = this_token->repr[0];
             leaf->type = FMT_TYPE;
             break;
+        default:
+            handle_error(ERR_TYPE);
     }
     
     

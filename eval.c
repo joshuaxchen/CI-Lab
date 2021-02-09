@@ -186,6 +186,8 @@ static void infer_type(node_t *nptr)
                 handle_error(ERR_TYPE);
             }
             break;
+        default:
+            handle_error(ERR_TYPE);
         }
         return;
     }
@@ -364,6 +366,8 @@ static void eval_node(node_t *nptr)
                     nptr->val = nptr->children[2]->val;
                 }
                 break;
+            default:
+            handle_error(ERR_EVAL);
             }
         return;
     }
