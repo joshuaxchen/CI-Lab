@@ -248,7 +248,7 @@ static void eval_node(node_t *nptr)
             }
         }
         int i = 2;
-        bool val;
+        //bool val;
         switch (nptr->tok)
         {
             case TOK_PLUS:
@@ -315,35 +315,37 @@ static void eval_node(node_t *nptr)
                     nptr->val.bval = nptr->children[0]->val.bval < nptr->children[1]->val.bval;
                 } else {
                     int i = strcmp(nptr->children[0]->val.sval, nptr->children[1]->val.sval);
+                    if (i < 0) {
+                        nptr->val.bval = true;
+                    } else {
+                        nptr->val.bval = false;
+                    }
                 }
-                if (i < 0) {
-                    nptr->val.bval = true;
-                } else {
-                    nptr->val.bval = false;
-                }
+                
                 break;
             case TOK_GT:
                 if (nptr->children[0]->type == INT_TYPE) {
                     nptr->val.bval = nptr->children[0]->val.bval > nptr->children[1]->val.bval;
                 } else {
                     int i = strcmp(nptr->children[0]->val.sval, nptr->children[1]->val.sval);
+                    if (i > 0) {
+                        nptr->val.bval = true;
+                    } else {
+                        nptr->val.bval = false;
+                    }
                 }
-                if (i > 0) {
-                    nptr->val.bval = true;
-                } else {
-                    nptr->val.bval = false;
-                }
+                
                 break;
             case TOK_EQ:
                 if (nptr->children[0]->type == INT_TYPE) {
                     nptr->val.bval = nptr->children[0]->val.bval == nptr->children[1]->val.bval;
                 } else {
                     int i = strcmp(nptr->children[0]->val.sval, nptr->children[1]->val.sval);
-                }
-                if (i == 0) {
-                    nptr->val.bval = true;
-                } else {
-                    nptr->val.bval = false;
+                    if (i == 0) {
+                        nptr->val.bval = true;
+                    } else {
+                        nptr->val.bval = false;
+                    }
                 }
                 break;
             case TOK_UMINUS:
