@@ -247,8 +247,7 @@ static void eval_node(node_t *nptr)
                 eval_node(nptr->children[i]);
             }
         }
-        int i = 2;
-        //bool val;
+
         switch (nptr->tok)
         {
             case TOK_PLUS:
