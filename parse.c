@@ -112,7 +112,8 @@ static node_t *build_leaf(void)
             leaf->type = FMT_TYPE;
             break;
         default:
-            handle_error(ERR_TYPE);
+            break;
+            //handle_error(ERR_TYPE);
     }
     
     

@@ -187,7 +187,8 @@ static void infer_type(node_t *nptr)
             }
             break;
         default:
-            handle_error(ERR_TYPE);
+            break;
+            //handle_error(ERR_TYPE);
         }
         return;
     }
@@ -368,7 +369,8 @@ static void eval_node(node_t *nptr)
                 }
                 break;
             default:
-            handle_error(ERR_EVAL);
+                break;
+            //handle_error(ERR_EVAL);
             }
         return;
     }
