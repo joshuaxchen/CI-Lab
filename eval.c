@@ -305,17 +305,19 @@ static void eval_node(node_t *nptr)
                 }
                 break;
             case TOK_AND:
-                if (nptr->children[0]->val.bval && nptr->children[1]->val.bval) {
-                    nptr->val.bval = true;
-                } else {
+                if (!nptr->children[0]->val.bval) {
                     nptr->val.bval = false;
+                } else {
+                    eval_node(nptr->children[1]);
+                    nptr->val.bval = nptr->children[1]->val.bval;
                 }
                 break;
             case TOK_OR:
-                if (nptr->children[0]->val.bval || nptr->children[1]->val.bval) {
+                if (nptr->children[0]->val.bval) {
                     nptr->val.bval = true;
                 } else {
-                    nptr->val.bval = false;
+                    eval_node(nptr->children[1]);
+                    nptr->val.bval = nptr->children[1]->val.bval;
                 }
                 break;
             case TOK_LT:
