@@ -279,13 +279,18 @@ static void eval_node(node_t *nptr)
                 if (nptr->type == INT_TYPE) {
                     nptr->val.ival = nptr->children[0]->val.ival * nptr->children[1]->val.ival;
                 } else {
-                    if (nptr->children[1]->val.ival > 0) {
+                    if (nptr->children[1]->val.ival >= 0) {
+                        // when 0 gives memory leak
                         nptr->val.sval = calloc(1, strlen(nptr->children[0]->val.sval) * nptr->children[1]->val.ival + 1);
                         nptr->val.sval[0] = '\0';
                         for (int i = 0; i < nptr->children[1]->val.ival;i++) {
                             strcat(nptr->val.sval, nptr->children[0]->val.sval);
                         }
-                    } else {
+                    }
+                    //  else if (nptr->children[1]->val.ival == 0) {
+                    //     nptr->val.sval = "";
+                    // }
+                    else {
                         handle_error(ERR_EVAL);
                     }
                 }
@@ -322,7 +327,7 @@ static void eval_node(node_t *nptr)
                 break;
             case TOK_LT:
                 if (nptr->children[0]->type == INT_TYPE) {
-                    nptr->val.bval = nptr->children[0]->val.bval < nptr->children[1]->val.bval;
+                    nptr->val.bval = nptr->children[0]->val.ival < nptr->children[1]->val.ival;
                 } else {
                     int i = strcmp(nptr->children[0]->val.sval, nptr->children[1]->val.sval);
                     if (i < 0) {
@@ -335,7 +340,8 @@ static void eval_node(node_t *nptr)
                 break;
             case TOK_GT:
                 if (nptr->children[0]->type == INT_TYPE) {
-                    nptr->val.bval = nptr->children[0]->val.bval > nptr->children[1]->val.bval;
+                    // changed to ival from bval
+                    nptr->val.bval = nptr->children[0]->val.ival > nptr->children[1]->val.ival;
                 } else {
                     int i = strcmp(nptr->children[0]->val.sval, nptr->children[1]->val.sval);
                     if (i > 0) {

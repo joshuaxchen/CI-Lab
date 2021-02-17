@@ -341,8 +341,7 @@ void cleanup(node_t *nptr)
     }
 
     if(nptr->type == STRING_TYPE) {
-        // happening 4 times, should be 3
-        //printf("1");
+        //  && strcmp(nptr->val.sval, "") != 0
         free(nptr->val.sval);
     }
     
