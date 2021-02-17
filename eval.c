@@ -30,6 +30,7 @@ static void infer_type(node_t *nptr)
         {
             infer_type(nptr->children[i]);
         }
+        entry_t *entry;
         switch (nptr->tok)
         {
         case TOK_PLUS:
@@ -186,9 +187,16 @@ static void infer_type(node_t *nptr)
                 handle_error(ERR_TYPE);
             }
             break;
+        case TOK_ID:
+            entry = get(nptr->val.sval);
+            if (entry != NULL) {
+                nptr->type = entry->type;
+            } else {
+                handle_error(ERR_UNDEFINED);
+            }
+            break;
         default:
             break;
-            //handle_error(ERR_TYPE);
         }
         return;
     }
@@ -248,7 +256,7 @@ static void eval_node(node_t *nptr)
                 eval_node(nptr->children[i]);
             }
         }
-
+        entry_t *entry;
         switch (nptr->tok)
         {
             case TOK_PLUS:
@@ -352,7 +360,8 @@ static void eval_node(node_t *nptr)
                 if (nptr->type == INT_TYPE) {
                     nptr->val.ival = -1 * nptr->children[0]->val.ival;
                 } else {
-                    nptr->val.sval = strrev(nptr->children[0]->val.sval);
+                    nptr->val.sval = calloc(1, sizeof(nptr->children[0]->val.sval));
+                    strcpy(nptr->val.sval, strrev(nptr->children[0]->val.sval));
                 }
                 
                 break;
@@ -362,16 +371,34 @@ static void eval_node(node_t *nptr)
             case TOK_QUESTION:
                 if (nptr->children[0]->val.bval) {
                     eval_node(nptr->children[1]);
-                    nptr->val = nptr->children[1]->val;
+                    if (nptr->children[1]->type == STRING_TYPE) {
+                        nptr->val.sval = calloc(1, sizeof(this_token->repr));
+                        strcpy(nptr->val.sval, nptr->children[1]->val.sval);
+                    } else {
+                        nptr->val = nptr->children[1]->val;
+                    }
                 } else {
                     eval_node(nptr->children[2]);
-                    nptr->val = nptr->children[2]->val;
+                    if (nptr->children[2]->type == STRING_TYPE) {
+                        nptr->val.sval = calloc(1, sizeof(this_token->repr));
+                        strcpy(nptr->val.sval, nptr->children[2]->val.sval);
+                    } else {
+                        nptr->val = nptr->children[2]->val;
+                    }
+                }
+                break;
+            case TOK_ID:
+                entry = get(nptr->val.sval);
+                if (entry != NULL) {
+                    nptr->val = entry->val;
+                } else {
+                    handle_error(ERR_EVAL);
                 }
                 break;
             default:
                 break;
-            //handle_error(ERR_EVAL);
             }
+
         return;
     }
 }

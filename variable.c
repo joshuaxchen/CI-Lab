@@ -112,6 +112,34 @@ entry_t * init_entry(char *id, node_t *nptr) {
  */
 
 void put(char *id, node_t *nptr) {
+    entry_t *item = calloc(1, sizeof(entry_t));
+    item = get(id);
+    if (item == NULL) {
+        item = init_entry(id, nptr);
+        unsigned long address = hash_function(id);
+        entry_t *temp = var_table->entries[address];
+        while (temp != NULL && temp->next != NULL) {
+            temp = temp->next;
+        }
+        if (temp == NULL) {
+            var_table->entries[address] = item;
+        } else {
+            temp->next = item;
+        }
+    } else {
+        // if (item->type == STRING_TYPE) {
+        //     free(item->val.sval);
+        // }
+        item->type = nptr->type;
+        if (item->type == INT_TYPE) {
+            item->val.ival = nptr->val.ival;
+        } else if (item->type == BOOL_TYPE) {
+            item->val.bval = nptr->val.bval;
+        } else if (item->type == STRING_TYPE) {
+            item->val.sval = calloc(1, sizeof(nptr->val.sval) + 1);
+            strcpy(item->val.sval, nptr->val.sval);
+        }
+    }
     return;
 }
 
@@ -121,20 +149,29 @@ void put(char *id, node_t *nptr) {
  * (STUDENT TODO) 
  */
 entry_t* get(char* id) {
-    return NULL;
+    unsigned long index = hash_function(id);
+    entry_t *temp = var_table->entries[index];
+    bool found = false;
+    while(temp != NULL && !found) {
+        if(strcmp(temp->id, id) == 0)
+            found = true;
+		else
+            temp = temp->next;
+    }
+    return temp;
 }
 
 void print_entry(entry_t *eptr) {
     if (! eptr) return;
     switch (eptr->type) {
         case INT_TYPE:
-            fprintf(outfile, "\t%s = %d\n", eptr->id, eptr->val.ival);
+            fprintf(outfile, "%s = %d; ", eptr->id, eptr->val.ival);
             break;
         case BOOL_TYPE:
-            fprintf(outfile, "\t%s = %s\n", eptr->id, bool_print[eptr->val.bval]);
+            fprintf(outfile, "%s = %s; ", eptr->id, bool_print[eptr->val.bval]);
             break;
         case STRING_TYPE:
-            fprintf(outfile, "\t%s = %s\n", eptr->id, eptr->val.sval);
+            fprintf(outfile, "%s = \"%s\"; ", eptr->id, eptr->val.sval);
             break;
         default:
             logging(LOG_ERROR, "unsupported entry type for printing");
@@ -149,9 +186,10 @@ void print_table(void) {
         logging(LOG_ERROR, "variable table doesn't exist");
         return;
     }
-
+    fprintf(outfile, "\t");
     for (int i = 0; i < CAPACITY; ++i) {
         print_entry(var_table->entries[i]);
     }
+    fprintf(outfile, "\n");
     return;
 }

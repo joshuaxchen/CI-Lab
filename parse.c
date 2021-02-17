@@ -111,12 +111,17 @@ static node_t *build_leaf(void)
             leaf->val.fval = this_token->repr[0];
             leaf->type = FMT_TYPE;
             break;
+        case TOK_ID:
+            leaf->val.sval = calloc(1, strlen(this_token->repr) + 1);
+            strcpy(leaf->val.sval, this_token->repr);
+            leaf->type = ID_TYPE;
+            break;
         default:
             break;
             //handle_error(ERR_TYPE);
     }
     
-    
+
     return leaf;
 }
 
@@ -325,6 +330,21 @@ node_t *read_and_parse(void)
 void cleanup(node_t *nptr)
 {
     // Is it enough to free the node the function called upon?
+    if(nptr == NULL) {
+        return;
+    }
+    
+    for (int i = 0; i < 3; i++)
+    {
+        cleanup(nptr->children[i]);
+    }
+
+    if(nptr->type == STRING_TYPE) {
+        // happening 4 times, should be 3
+        //printf("1");
+        free(nptr->val.sval);
+    }
+    
     free(nptr);
     return;
 }
