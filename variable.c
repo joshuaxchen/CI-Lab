@@ -110,38 +110,67 @@ entry_t * init_entry(char *id, node_t *nptr) {
  * it already exists.
  * (STUDENT TODO) 
  */
-
 void put(char *id, node_t *nptr) {
+    unsigned long address = hash_function(id);
+    entry_t *list = var_table->entries[address];
     entry_t *item = calloc(1, sizeof(entry_t));
-    item = get(id);
-    if (item == NULL) {
+    
+    if (list == NULL) {
         item = init_entry(id, nptr);
-        unsigned long address = hash_function(id);
-        entry_t *temp = var_table->entries[address];
-        while (temp != NULL && temp->next != NULL) {
-            temp = temp->next;
-        }
-        if (temp == NULL) {
-            var_table->entries[address] = item;
-        } else {
-            temp->next = item;
-        }
+        item->next = NULL;
+        var_table->entries[address] = item;
     } else {
-        // if (item->type == STRING_TYPE) {
-        //     free(item->val.sval);
-        // }
-        item->type = nptr->type;
-        if (item->type == INT_TYPE) {
-            item->val.ival = nptr->val.ival;
-        } else if (item->type == BOOL_TYPE) {
-            item->val.bval = nptr->val.bval;
-        } else if (item->type == STRING_TYPE) {
-            item->val.sval = calloc(1, sizeof(nptr->val.sval) + 1);
-            strcpy(item->val.sval, nptr->val.sval);
+        item = get(id);
+        if (item == NULL) {
+            item = init_entry(id, nptr);
+            item->next = NULL;
+            while (list->next != NULL) {
+                list = list->next;
+            }
+            list->next = item;
+        } else {
+            if (item->type == INT_TYPE) {
+                item->val.ival = nptr->val.ival;
+            } else if (item->type == BOOL_TYPE) {
+                item->val.bval = nptr->val.bval;
+            } else if (item->type == STRING_TYPE) {
+                item->val.sval = calloc(1, sizeof(nptr->val.sval) + 1);
+                strcpy(item->val.sval, nptr->val.sval);
+            }
         }
+        
     }
     return;
 }
+// entry_t *item = calloc(1, sizeof(entry_t));
+//     item = get(id);
+//     if (item == NULL) {
+//         item = init_entry(id, nptr);
+//         unsigned long address = hash_function(id);
+//         entry_t *temp = var_table->entries[address];
+//         while (temp != NULL && temp->next != NULL) {
+//             temp = temp->next;
+//         }
+//         if (temp == NULL) {
+//             var_table->entries[address] = item;
+//         } else {
+//             temp->next = item;
+//         }
+//     } else {
+//         // if (item->type == STRING_TYPE) {
+//         //     free(item->val.sval);
+//         // }
+//         item->type = nptr->type;
+//         if (item->type == INT_TYPE) {
+//             item->val.ival = nptr->val.ival;
+//         } else if (item->type == BOOL_TYPE) {
+//             item->val.bval = nptr->val.bval;
+//         } else if (item->type == STRING_TYPE) {
+//             item->val.sval = calloc(1, sizeof(nptr->val.sval) + 1);
+//             strcpy(item->val.sval, nptr->val.sval);
+//         }
+//     }
+//     return;
 
 /* get() - search for an entry in the hashtable.
  * Parameter: Variable name.
@@ -151,14 +180,12 @@ void put(char *id, node_t *nptr) {
 entry_t* get(char* id) {
     unsigned long index = hash_function(id);
     entry_t *temp = var_table->entries[index];
-    bool found = false;
-    while(temp != NULL && !found) {
+    while(temp != NULL) {
         if(strcmp(temp->id, id) == 0)
-            found = true;
-		else
-            temp = temp->next;
+            return temp;
+        temp = temp->next;
     }
-    return temp;
+    return NULL;
 }
 
 void print_entry(entry_t *eptr) {

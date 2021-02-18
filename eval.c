@@ -398,7 +398,11 @@ static void eval_node(node_t *nptr)
             case TOK_ID:
                 entry = get(nptr->val.sval);
                 if (entry != NULL) {
-                    nptr->val = entry->val;
+                    if (entry->type == STRING_TYPE) {
+                        strcpy(nptr->val.sval, entry->val.sval);
+                    } else {
+                        nptr->val = entry->val;
+                    }
                 } else {
                     handle_error(ERR_EVAL);
                 }
